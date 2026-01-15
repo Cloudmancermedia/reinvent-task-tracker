@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "ecs-mcp": {
+      "disabled": false,
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws@latest",
+        "https://ecs-mcp.us-east-1.api.aws/mcp",
+        "--service",
+        "ecs-mcp",
+        "--profile",
+        "cloudmancer",
+        "--region",
+        "us-east-1"
+      ]
+    }
+  }
+}

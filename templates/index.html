@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Task Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --border: #e5e7eb;
+        }
+        
+        * { font-family: 'Inter', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 20px 0;
+        }
+        
+        .main-container { 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 { 
+            font-weight: 700; 
+            font-size: 2.5rem; 
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header p { 
+            opacity: 0.9; 
+            margin: 0.5rem 0 0 0; 
+            font-size: 1.1rem;
+        }
+        
+        .content { padding: 2rem; }
+        
+        .add-task-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+        
+        .section-title {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .search-filter-section {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            background: var(--dark);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .task-priority {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .priority-high { background: #fef2f2; color: #dc2626; }
+        .priority-medium { background: #fffbeb; color: #d97706; }
+        .priority-low { background: #f0fdf4; color: #16a34a; }
+        
+        .badge-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-overdue { background: #fee2e2; color: #991b1b; }
+        
+        .btn-group .btn {
+            border-radius: 8px;
+            margin: 0 2px;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline-primary:hover { background: var(--primary); color: white; }
+        .btn-outline-success { border: 1px solid var(--success); color: var(--success); }
+        .btn-outline-success:hover { background: var(--success); color: white; }
+        .btn-outline-danger { border: 1px solid var(--danger); color: var(--danger); }
+        .btn-outline-danger:hover { background: var(--danger); color: white; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+        
+        .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .stat-number { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem; }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .content { padding: 1rem; }
+            .table-responsive { font-size: 0.875rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="main-container">
+                    <div class="header">
+                        <h1><i class="fas fa-rocket me-3"></i>TaskFlow Pro</h1>
+                        <p>Streamline your productivity with intelligent task management</p>
+                    </div>
+                    
+                    <div class="content">
+                        {% if error %}
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Statistics Cards -->
+                        <div class="stats-cards">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalTasks">{{ tasks|length }}</div>
+                                <div class="stat-label">Total Tasks</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="pendingTasks">-</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="dueTasks">-</div>
+                                <div class="stat-label">Due Today</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="overdueTasks">-</div>
+                                <div class="stat-label">Overdue</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Task Section -->
+                        <div class="add-task-section">
+                            <div class="section-title">
+                                <i class="fas fa-plus-circle"></i>
+                                Create New Task
+                            </div>
+                            <form method="POST" action="/add">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <input type="text" name="task_name" class="form-control" 
+                                               placeholder="Enter task name..." required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" name="task_description" class="form-control" 
+                                               placeholder="Add description...">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="date" name="due_date" class="form-control">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus me-2"></i>Add Task
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Search and Filter Section -->
+                        <div class="search-filter-section">
+                            <div class="section-title">
+                                <i class="fas fa-filter"></i>
+                                Search & Filter
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" id="searchInput" class="form-control" 
+                                               placeholder="Search tasks by name..." onkeyup="filterTasks()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="sortSelect" class="form-select" onchange="sortTasks()">
+                                        <option value="asc">Due Date: Earliest First</option>
+                                        <option value="desc">Due Date: Latest First</option>
+                                        <option value="name">Name: A-Z</option>
+                                        <option value="name-desc">Name: Z-A</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="statusFilter" class="form-select" onchange="filterByStatus()">
+                                        <option value="all">All Tasks</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="overdue">Overdue</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tasks Table -->
+                        {% if tasks %}
+                            <div class="table-container">
+                                <table class="table" id="tasksTable">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-tasks me-2"></i>Task Name</th>
+                                            <th><i class="fas fa-align-left me-2"></i>Description</th>
+                                            <th><i class="fas fa-calendar me-2"></i>Due Date</th>
+                                            <th><i class="fas fa-flag me-2"></i>Status</th>
+                                            <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in tasks %}
+                                        <tr id="row-{{ task[0] }}" data-task-name="{{ task[1]|lower }}">
+                                            <td class="task-name">
+                                                <span class="view-mode fw-semibold">{{ task[1] }}</span>
+                                                <input type="text" class="form-control edit-mode d-none" value="{{ task[1] }}">
+                                            </td>
+                                            <td class="task-desc">
+                                                <span class="view-mode">{{ task[2] or 'No description provided' }}</span>
+                                                <input type="text" class="form-control edit-mode d-none" value="{{ task[2] or '' }}">
+                                            </td>
+                                            <td class="task-date" data-date="{{ task[3] }}">
+                                                <span class="view-mode">
+                                                    {% if task[3] %}
+                                                        <span class="badge-status status-pending">
+                                                            <i class="fas fa-calendar-day me-1"></i>
+                                                            {{ task[3].strftime('%b %d, %Y') }}
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="text-muted">
+                                                            <i class="fas fa-calendar-times me-1"></i>No due date
+                                                        </span>
+                                                    {% endif %}
+                                                </span>
+                                                <input type="date" class="form-control edit-mode d-none" 
+                                                       value="{{ task[3].strftime('%Y-%m-%d') if task[3] else '' }}">
+                                            </td>
+                                            <td class="task-status">
+                                                <span class="view-mode">
+                                                    {% if task[4] %}
+                                                        <span class="badge-status status-completed">
+                                                            <i class="fas fa-check-circle me-1"></i>Completed
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge-status status-pending">
+                                                            <i class="fas fa-clock me-1"></i>Pending
+                                                        </span>
+                                                    {% endif %}
+                                                </span>
+                                                <select class="form-select edit-mode d-none">
+                                                    <option value="false" {% if not task[4] %}selected{% endif %}>Pending</option>
+                                                    <option value="true" {% if task[4] %}selected{% endif %}>Completed</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group view-mode">
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="editTask({{ task[0] }})" 
+                                                            title="Edit Task">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success" onclick="toggleComplete({{ task[0] }})" 
+                                                       title="Toggle Complete">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <a href="/delete/{{ task[0] }}" class="btn btn-sm btn-outline-danger" 
+                                                       onclick="return confirm('Are you sure you want to delete this task?')" 
+                                                       title="Delete Task">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                                <div class="btn-group edit-mode d-none">
+                                                    <button class="btn btn-sm btn-outline-success" onclick="saveTask({{ task[0] }})" 
+                                                            title="Save Changes">
+                                                        <i class="fas fa-save"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="cancelEdit({{ task[0] }})" 
+                                                            title="Cancel">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-clipboard-list"></i>
+                                <h3>No Tasks Yet</h3>
+                                <p>Create your first task to get started with TaskFlow Pro</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize statistics on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+            updateTaskStatuses();
+        });
+        
+        function updateStatistics() {
+            const rows = document.querySelectorAll('#tasksTable tbody tr');
+            const today = new Date().toDateString();
+            
+            let pending = 0, dueToday = 0, overdue = 0;
+            
+            rows.forEach(row => {
+                const dateElement = row.querySelector('.task-date');
+                const dateAttr = dateElement.getAttribute('data-date');
+                
+                if (dateAttr && dateAttr !== 'None') {
+                    const taskDate = new Date(dateAttr);
+                    const taskDateString = taskDate.toDateString();
+                    
+                    if (taskDateString === today) {
+                        dueToday++;
+                    } else if (taskDate < new Date()) {
+                        overdue++;
+                    } else {
+                        pending++;
+                    }
+                } else {
+                    pending++;
+                }
+            });
+            
+            document.getElementById('pendingTasks').textContent = pending;
+            document.getElementById('dueTasks').textContent = dueToday;
+            document.getElementById('overdueTasks').textContent = overdue;
+        }
+        
+        function updateTaskStatuses() {
+            const rows = document.querySelectorAll('#tasksTable tbody tr');
+            const today = new Date();
+            
+            rows.forEach(row => {
+                const dateElement = row.querySelector('.task-date');
+                const statusElement = row.querySelector('.task-status .badge-status');
+                const dateAttr = dateElement.getAttribute('data-date');
+                
+                // Check if task is already completed (don't override completed status)
+                if (statusElement.innerHTML.includes('Completed')) {
+                    return; // Skip updating completed tasks
+                }
+                
+                if (dateAttr && dateAttr !== 'None') {
+                    const taskDate = new Date(dateAttr);
+                    
+                    if (taskDate.toDateString() === today.toDateString()) {
+                        statusElement.className = 'badge-status status-pending';
+                        statusElement.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Due Today';
+                    } else if (taskDate < today) {
+                        statusElement.className = 'badge-status status-overdue';
+                        statusElement.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Overdue';
+                    } else {
+                        statusElement.className = 'badge-status status-pending';
+                        statusElement.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
+                    }
+                } else {
+                    statusElement.className = 'badge-status status-pending';
+                    statusElement.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
+                }
+            });
+        }
+        
+        function filterTasks() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('tasksTable');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const taskName = rows[i].getAttribute('data-task-name');
+                if (taskName) {
+                    rows[i].style.display = taskName.indexOf(filter) > -1 ? '' : 'none';
+                }
+            }
+        }
+        
+        function filterByStatus() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('#tasksTable tbody tr');
+            
+            rows.forEach(row => {
+                const statusElement = row.querySelector('.task-status .badge-status');
+                const statusClass = statusElement.className;
+                
+                if (statusFilter === 'all') {
+                    row.style.display = '';
+                } else if (statusFilter === 'pending' && statusClass.includes('status-pending')) {
+                    row.style.display = '';
+                } else if (statusFilter === 'overdue' && statusClass.includes('status-overdue')) {
+                    row.style.display = '';
+                } else if (statusFilter === 'completed' && statusClass.includes('status-completed')) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function sortTasks() {
+            const table = document.getElementById('tasksTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            const sortOrder = document.getElementById('sortSelect').value;
+            
+            rows.sort((a, b) => {
+                if (sortOrder === 'name' || sortOrder === 'name-desc') {
+                    const nameA = a.getAttribute('data-task-name');
+                    const nameB = b.getAttribute('data-task-name');
+                    const comparison = nameA.localeCompare(nameB);
+                    return sortOrder === 'name' ? comparison : -comparison;
+                } else {
+                    const dateA = a.getElementsByClassName('task-date')[0].getAttribute('data-date');
+                    const dateB = b.getElementsByClassName('task-date')[0].getAttribute('data-date');
+                    
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    
+                    const comparison = new Date(dateA) - new Date(dateB);
+                    return sortOrder === 'asc' ? comparison : -comparison;
+                }
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        function editTask(taskId) {
+            const row = document.getElementById(`row-${taskId}`);
+            row.querySelectorAll('.view-mode').forEach(el => el.classList.add('d-none'));
+            row.querySelectorAll('.edit-mode').forEach(el => el.classList.remove('d-none'));
+        }
+        
+        function cancelEdit(taskId) {
+            const row = document.getElementById(`row-${taskId}`);
+            row.querySelectorAll('.edit-mode').forEach(el => el.classList.add('d-none'));
+            row.querySelectorAll('.view-mode').forEach(el => el.classList.remove('d-none'));
+        }
+        
+        function toggleComplete(taskId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/complete';
+            
+            const taskIdInput = document.createElement('input');
+            taskIdInput.type = 'hidden';
+            taskIdInput.name = 'task_id';
+            taskIdInput.value = taskId;
+            form.appendChild(taskIdInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        function saveTask(taskId) {
+            const row = document.getElementById(`row-${taskId}`);
+            
+            const taskNameInput = row.querySelector('.task-name .edit-mode');
+            const taskDescInput = row.querySelector('.task-desc .edit-mode');
+            const taskDateInput = row.querySelector('.task-date .edit-mode');
+            const taskStatusSelect = row.querySelector('.task-status .edit-mode');
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/update';
+            
+            const taskIdInput = document.createElement('input');
+            taskIdInput.type = 'hidden';
+            taskIdInput.name = 'task_id';
+            taskIdInput.value = taskId;
+            form.appendChild(taskIdInput);
+            
+            const taskName = document.createElement('input');
+            taskName.type = 'hidden';
+            taskName.name = 'task_name';
+            taskName.value = taskNameInput.value;
+            form.appendChild(taskName);
+            
+            const taskDesc = document.createElement('input');
+            taskDesc.type = 'hidden';
+            taskDesc.name = 'task_description';
+            taskDesc.value = taskDescInput.value;
+            form.appendChild(taskDesc);
+            
+            const dueDate = document.createElement('input');
+            dueDate.type = 'hidden';
+            dueDate.name = 'due_date';
+            dueDate.value = taskDateInput.value;
+            form.appendChild(dueDate);
+            
+            const completed = document.createElement('input');
+            completed.type = 'hidden';
+            completed.name = 'completed';
+            completed.value = taskStatusSelect.value;
+            form.appendChild(completed);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>
